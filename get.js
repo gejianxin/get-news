@@ -4,71 +4,41 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 
 
-const asyncGetNews = async function() {
-    await axios.get('https://new.qq.com/ch/tech/', {responseType: 'stream'}).then(res => {
+const asyncGetNews = async function(url) {
+    let html = '';
+    await axios.get(url, {responseType: 'stream'}).then(res => {
             let chunks = [];
+            let html = {};
             res.data.on('data',chunk=>{
                 chunks.push(chunk);
             });
             res.data.on('end',()=>{
                 let buffer = Buffer.concat(chunks);
-                let html = iconv.decode(buffer,'gbk');
-                doSomething(html);
+                // 通过iconv来进行编码转换
+                html = iconv.decode(buffer,'gbk');
             });
-
+         getOnce(html);
         });
 };
 
-// const asyncGetNews = async function() {
-//     try {
-//         let res = await axios.get('https://new.qq.com/ch/tech/');
-//         // .then(res => {
-//         //     let chunks = [];
-//         //     res.data.on('data',chunk=>{
-//         //         chunks.push(chunk);
-//         //     });
-//         //     res.data.on('end',()=>{
-//         //         let buffer = Buffer.concat(chunks);
-//         //         return buffer;
-//         //     });
-//         //     // return res.data;
-//         // });
-//         // let html = iconv.decode(res.data,'gbk');
-//         // console.log(html);
-//         doSomething(res.data);
-//         // html = iconv.decode(res, 'gbk');
-//         // console.log(res);
-//         // 通过iconv来进行转化。
-//     } catch (err) {
-//         console.log(err);
-//     };
-// };
-
-const doSomething = (html) => {
+const getOnce = (html) => {
     let $ = cheerio.load(html);
-    let item = $('.list').find('.detail');
-    console.log(item.text());
-}
+    let item = $('.detail').children('h3').find('a');
+    let title = [];
+    item.each(( index, element ) => {
+        title[index] = $(element).text();
+        console.log(title[index].trim());
+    });
+};
 
-asyncGetNews();
-
-// let options = {
-//     hostname: '',
-//     path: '',
-//     method: 'GET',
-//     headers: {
-//         'Accept': '*/*',
-//         'Accept-Encoding': 'utf-8, gb18030, gb2312, gbk', //这里设置返回的编码方式 设置其他的会是乱码
-//         'Accept-Language': 'zh-CN,zh;q=0.8',
-//         'Connection': 'keep-alive',
-//         // 'Cache-Control': 'no-cache',
-//         'Host': '',
-//         'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:73.0) Gecko/20100101 Firefox/73.0',
-//         'Upgrade-Insecure-Requests': 1,
-//           'Cookie': '',
-//           'Referer':  ''
+//https://pacaio.match.qq.com/irs/rcd?cid=146&token=49cbb2154853ef1a74ff4e53723372ce&ext=tech&page=
+// const getMore = (url) => {
+//     for (i = 2; i < 10; i++) {
+        
 //     }
 // };
+
+asyncGetNews('https://new.qq.com/ch/tech/');
 
 // let hosts = [{
 //         name: "钛媒体-产业互联",
