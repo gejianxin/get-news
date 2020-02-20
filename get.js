@@ -71,7 +71,7 @@ const GetOrigin = (url) => {
 };
 
 const GetHtml = async (host) => {
-    if (!host.decode) {
+    if ( ! host.decode ) {
         return GetOrigin(host.url);
     } else {
         return GetDecode(host.url, host.decode);

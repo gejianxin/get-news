@@ -4,36 +4,37 @@ import {
     hosts
 } from './get.js';
 
-const Selector = (host, titleSelector, urlSelector, fixUrl) => {
-    GetHtml(host).then(res => {
-        let $ = cheerio.load(res);
-        let title = titleSelector($);
-        let url = urlSelector($);
-        let titles = [];
-        let urls = [];
-        let items = [];
-        title.each((index, element) => {
-            titles[index] = $(element).text();
-            titles[index] = titles[index].trim();
-        });
-        url.each((index, element) => {
-            urls[index] = $(element).attr('href');
-        });
-        for (let i = 0; i < titles.length; i++) {
-            if (typeof fixUrl === "function") {
-                items.push({
-                    title: titles[i],
-                    url: fixUrl(urls[i])
-                });
-            } else {
-                items.push({
-                    title: titles[i],
-                    url: urls[i]
-                });
-            }
-            console.log(items[1].title, '\t', items[1].url);
-        };
+const Selector = async (host, titleSelector, urlSelector, fixUrl) => {
+    let html = await GetHtml(host).then(res => {
+        return res;
     });
+    let $ = cheerio.load(html);
+    let title = titleSelector($);
+    let url = urlSelector($);
+    let titles = [];
+    let urls = [];
+    let items = [];
+    title.each((index, element) => {
+        titles[index] = $(element).text();
+        titles[index] = titles[index].trim();
+    });
+    url.each((index, element) => {
+        urls[index] = $(element).attr('href');
+    });
+    for (let i = 0; i < titles.length; i++) {
+        if (typeof fixUrl === "function") {
+            items.push({
+                title: titles[i],
+                url: fixUrl(urls[i])
+            });
+        } else {
+            items.push({
+                title: titles[i],
+                url: urls[i]
+            });
+        };
+    };
+    return items;
 };
 
 const tmtSelector = {
